@@ -4,9 +4,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var monk = require('monk');
 
 // var routes = require('./routes/index');
 // var users = require('./routes/users');
+
 
 var app = express();
 
@@ -22,10 +24,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/', routes);
-// app.use('/users', users);
+var db = monk('mongodb://localhost:27017/locker');
 
+app.all('/', function(req, res, next){
+    req.db = db;
+    next();
+});
 
+var api = require('./routes/api');
+app.use('/', api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
